@@ -28,44 +28,22 @@ Logger features:
 - [X] Logging levels (Unknown, Failure, Error, Warning, Important, Info, Debug, Verbose)
 	- [X] Verbosity level, anything under gets filtered out
 - [X] Log targets
-	- [ ] Daily log files
 	- [X] Console logging (optional colors)
 	- [X] File logging
 	- [X] Add ability to log to more than one target
 - [ ] Custom log formats
-- [X] Log time, thread id, file name, line number, etc.
-- [ ] Async logging?
+- [X] Log time
+- [X] Thread id
+- [ ] File name
+- [ ] Line number
+- [ ] Async logging
 
 
-HOW TO:
-======
 
-How to get thread id:
---------------------
-std::cout << "Thread ID: " << std::this_thread::get_id() << '\n';
-
-Get file details:
+Get File Details:
 ----------------
 void log(const std::string& message, const std::source_location& location = std::source_location::current()) {
 std::cout << location.file_name() < '(' << location.line() << ':' << location.column() << ')' << '`' << location.function_name() << '`' << ": " << message << '\n';
-}
-
-How to format: (C++20 or greater)
--------------
-#include <format>
-std::format("Hello {1}!\n", "world", "dog") // Prints "Hello dog!"
-
-How to get logs inputs with format:
-----------------------------------
-template<typename... Args>
-std::string log(std::string_view format, Args&&... args)
-{
-	return std::vformat(format, std::make_format_args(args...));
-}
-
-std::string log(std::string_view format) // This is a backup, just in-case you don't pass a second parameter it will crash, so this prevents that.
-{
-	return static_cast<std::string>(format);
 }
 
 
@@ -202,6 +180,7 @@ namespace SimpleLogger
 	{
 	public:
 		FileTarget(std::string filePath = "logs/LogFile.log", bool shouldAppend = false, bool addTime = true, bool addThreadID = true)
+			: Target()
 		{
 			this->FilePath = filePath;
 			this->AppendToFile = shouldAppend;
@@ -275,6 +254,7 @@ namespace SimpleLogger
 	{
 	public:
 		ConsoleTarget(bool addColors = true, bool wholeMessageColor = true, bool addTime = true, bool addThreadID = true)
+			: Target()
 		{
 			this->AddColors = addColors;
 			this->WholeMessageColor = wholeMessageColor;
@@ -340,16 +320,15 @@ namespace SimpleLogger
 		{
 		}
 
-		//template <typename T>
-		std::shared_ptr<Target*>& AddTarget(Target* target)
+		std::shared_ptr<Target>& AddTarget(Target* target)
 		{
-			std::shared_ptr<Target*> newTarget = std::make_shared<Target*>(target);
-			Targets.emplace(Targets.begin() + InsertIndex, newTarget);
+			std::shared_ptr<SimpleLogger::Target> targetToInsert(target);
+			Targets.emplace(Targets.begin() + InsertIndex, targetToInsert);
 			InsertIndex++;
 			return Targets[InsertIndex - 1];
 		}
 
-		void DeleteTarget(std::shared_ptr<Target*> deleteTarget)
+		void DeleteTarget(std::shared_ptr<Target> deleteTarget)
 		{
 			auto it = std::find(Targets.begin(), Targets.end(), deleteTarget);
 			if (it != Targets.end())
@@ -371,9 +350,9 @@ namespace SimpleLogger
 
 		void SetPrefix(const std::string& prefix)
 		{
-			for (std::shared_ptr<Target*> target : Targets)
+			for (std::shared_ptr<Target> target : Targets)
 			{
-				(*target)->SetPrefix(prefix);
+				target->SetPrefix(prefix);
 			}
 		}
 
@@ -381,9 +360,9 @@ namespace SimpleLogger
 		{
 			if (static_cast<int>(severityLevel) < VerboseLevel) return;
 
-			for (std::shared_ptr<Target*> target : Targets)
+			for (std::shared_ptr<Target> target : Targets)
 			{
-				(*target)->Log(severityLevel, static_cast<std::string>(message));
+				target->Log(severityLevel, static_cast<std::string>(message));
 			}
 		}
 
@@ -410,6 +389,6 @@ namespace SimpleLogger
 		int VerboseLevel;
 		int InsertIndex = 0;
 		// Shared ptr is nice, however `(*consoleTarget)->` looks ugly and you can't get the shared ptr anywhere but when it was added. What would be better is to have a get function, where you can get the different targets with an ID (place in vector) and the shared ptrs, would return an ID instead.
-		std::vector<std::shared_ptr<Target*>> Targets;
+		std::vector<std::shared_ptr<Target>> Targets;
 	};
 }

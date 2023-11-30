@@ -34,19 +34,16 @@ int main()
 
 
 	// Creating two console and one file target
-	SimpleLogger::ConsoleTarget tmp1;
-	auto consoleTarget1 = log.getCoreLogger()->AddTarget(&tmp1);
-	SimpleLogger::ConsoleTarget tmp2;
-	auto consoleTarget2 = log.getCoreLogger()->AddTarget(&tmp2);
-	SimpleLogger::FileTarget tmp3("LogFile.log");
-	auto fileTarget1 = log.getCoreLogger()->AddTarget(&tmp3);
+	auto consoleTarget1 = log.getCoreLogger()->AddTarget(new SimpleLogger::ConsoleTarget());
+	auto consoleTarget2 = log.getCoreLogger()->AddTarget(new SimpleLogger::ConsoleTarget());
+	auto fileTarget1 = log.getCoreLogger()->AddTarget(new SimpleLogger::FileTarget("LogFile.log"));
 	// Set both console target's prefix
-	(*consoleTarget1)->SetPrefix("[Target 1]");
-	(*consoleTarget2)->SetPrefix("[Target 2]");
+	consoleTarget1->SetPrefix("[Target 1]");
+	consoleTarget2->SetPrefix("[Target 2]");
 	// Log only to consoleTarget1
-	(*consoleTarget1)->Log(SimpleLogger::SeverityLevels::Failure, "Only console target 1!");
+	consoleTarget1->Log(SimpleLogger::SeverityLevels::Failure, "Only console target 1!");
 	// Log only to consoleTarget2
-	(*consoleTarget2)->Log(SimpleLogger::SeverityLevels::Failure, "Only console target 2!");
+	consoleTarget2->Log(SimpleLogger::SeverityLevels::Failure, "Only console target 2!");
 	// Log to both console and the only file target
 	log.getCoreLogger()->Log(SimpleLogger::SeverityLevels::Failure, "All targets");
 	// Example of the std::format or fmt::format usage in logs
@@ -63,15 +60,13 @@ int main()
 
 
 	// Create a console logging target and assign it to consoleTarget
-	SimpleLogger::ConsoleTarget tmp4;
-	auto consoleTarget = log.getCoreLogger()->AddTarget(&tmp4);
+	auto consoleTarget = log.getCoreLogger()->AddTarget(new SimpleLogger::ConsoleTarget());
 	// Create a file logging target that appends to the log file and assign it to fileTarget
-	SimpleLogger::FileTarget tmp5("LogFile.log", true);
-	auto fileTarget = log.getCoreLogger()->AddTarget(&tmp5);
+	auto fileTarget = log.getCoreLogger()->AddTarget(new SimpleLogger::FileTarget("LogFile.log", true));
 	// Set the consoleTarget's prefix
-	(*consoleTarget)->SetPrefix("[ENIGNE]");
+	consoleTarget->SetPrefix("[ENIGNE]");
 	// Set the fileTarget's prefix
-	(*fileTarget)->SetPrefix("[ENIGNE]");
+	fileTarget->SetPrefix("[ENIGNE]");
 	// Set all of the logger's target's prefixes
 	log.getCoreLogger()->SetPrefix("[ENIGNE]");
 	// Logging examples
