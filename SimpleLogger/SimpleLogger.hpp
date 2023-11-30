@@ -142,25 +142,6 @@ namespace SimpleLogger
 			this->Prefix = prefix;
 		}
 
-		void EnableColors(bool shouldEnable = true, bool wholeMessageColor = true)
-		{
-			AddColors = shouldEnable;
-			this->WholeMessageColor = wholeMessageColor;
-		}
-		void DisableColors()
-		{
-			AddColors = false;
-		}
-
-		void ChangeFilePath(std::string filePath)
-		{
-			this->FilePath = filePath;
-		}
-		void AppendToLogFile(bool shouldAppend = true)
-		{
-			AppendToFile = shouldAppend;
-		}
-
 	protected:
 		std::string UTCTime()
 		{
@@ -212,12 +193,6 @@ namespace SimpleLogger
 
 	protected:
 		std::string Prefix = "";
-
-		bool AddColors = true;
-		bool WholeMessageColor = true;
-
-		std::string FilePath = "logs/LogFile.log";
-		bool AppendToFile = false;
 
 		bool AddTime = true;
 		bool AddThreadID = true;
@@ -280,7 +255,19 @@ namespace SimpleLogger
 			}
 		}
 
-	public:
+		void ChangeFilePath(std::string filePath)
+		{
+			this->FilePath = filePath;
+		}
+		void AppendToLogFile(bool shouldAppend = true)
+		{
+			AppendToFile = shouldAppend;
+		}
+
+	protected:
+		std::string FilePath = "logs/LogFile.log";
+		bool AppendToFile = false;
+
 		std::fstream logFileRead;
 	};
 
@@ -325,6 +312,20 @@ namespace SimpleLogger
 		{
 			std::cout.flush();
 		}
+
+		void EnableColors(bool shouldEnable = true, bool wholeMessageColor = true)
+		{
+			AddColors = shouldEnable;
+			this->WholeMessageColor = wholeMessageColor;
+		}
+		void DisableColors()
+		{
+			AddColors = false;
+		}
+
+	protected:
+		bool AddColors = true;
+		bool WholeMessageColor = true;
 	};
 
 	class Logger
